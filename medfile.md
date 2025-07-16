@@ -48,126 +48,51 @@ Para dar vida ao formato MedFile, estamos desenvolvendo um parser de referência
     -   [ ] **Fase 4:** Criar uma ferramenta de linha de comando (CLI).
     -   [ ] **Fase 5:** Adicionar suporte para output em outros formatos (ex: HTML).
 
-### Como Executar o Projeto
+## Visualizador HTML
 
-Para que outro desenvolvedor ou LLM possa replicar e continuar o trabalho, siga os passos abaixo.
+Um visualizador HTML foi desenvolvido para permitir a fácil visualização e apresentação de arquivos `.med` diretamente no navegador. Ele inclui um parser JavaScript embutido que interpreta o formato MedFile e o renderiza com estilos modernos, além de um "Modo Apresentação" para exibição otimizada.
 
-1.  **Crie o arquivo `example.med`:**
+### Como Usar o Visualizador
 
-    ```medfile
-    [ANAMNESE]
-    PACIENTE COM QUEIXAS DE PREJUIZO DE MEMORIA EPISODICA, COM PREDOMINIO DE FATOS RECENTES E MENÇÃO DE PREJUIZO SIGNIFICATIVO EM FUNÇÕES EXECUTIVAS, COMPROMETENDO ATIVIDADES BASICAS E INSTRUMENTAIS, EM CARÁTER PROGRESSIVO, HÁ 6 ANOS.
+1.  Abra o arquivo `index.html` em qualquer navegador web.
+2.  Clique em "Selecionar Arquivo .med" e escolha um arquivo com a extensão `.med` (ex: `example.med` ou `JMC.med`).
+3.  O conteúdo do arquivo será exibido formatado na tela.
+4.  **Download HTML Formatado**: Clique no botão "Download HTML Formatado" para baixar o conteúdo exibido como um arquivo HTML.
+5.  **Modo Apresentação**: Clique no botão "Modo Apresentação" para entrar no modo de tela cheia, ideal para apresentações. Use os botões "Anterior" e "Próximo" para navegar entre as seções do documento. Para sair, clique no botão "Sair do Modo Apresentação" no canto superior direito.
 
-    !HPP HAS; DM; HIPOTIREOIDISMO;
-    !MED LOSARTANA 50MG 12/12 HORAS; METFORMINA 500MG [LIBERACAO CONTROLADA, 2 COMPRIMIDOS] MANHA NOITE; ALPRAZOLAM 2MG NOITE;
-    !HF NEGA;
-    !RX @RM_CRANIO[05/2025]: FAZEKAS 3; MTA 3;
-    !RX @LAB[05/2025]: B12 100; TSH 25;
+---
 
-    [EXAME FISICO]
-    DESORIENTADO EM TEMPO E ESPAÇO;
-    PARCIALMENTE COOPERATIVO;
+## Exemplo de Documento Completo
 
-    [HIPOTESE DIAGNOSTICA]
-    DEMENCIA NA DOENÇA DE ALZHEIMER
-    DEMENCIA VASCULAR?
-    HIPOVITAMINOSE
-    HIPOTIREOIDISMO
-    INTOXICAÇÃO EXOGENA
+Abaixo, um exemplo de como um documento `.med` seria na prática.
 
-    [CONDUTA]
-    +AAS 100MG ALMOÇO;
-    +SINVASTATINA 20MG NOITE;
-    +GALANTAMINA 4MG;
-    +MECOBALAMINA 1000MCG;
-    -ALPRAZOLAM;
-    +CLONAZEPAM 2,5MG/ML [5 GOTAS] NOITE >> !DESMAME
-    ORIENTO ATIVIDADE FISICA REGULAR
-    ```
+```medfile
+[ANAMNESE]
+PACIENTE COM QUEIXAS DE PREJUIZO DE MEMORIA EPISODICA, COM PREDOMINIO DE FATOS RECENTES E MENÇÃO DE PREJUIZO SIGNIFICATIVO EM FUNÇÕES EXECUTIVAS, COMPROMETENDO ATIVIDADES BASICAS E INSTRUMENTAIS, EM CARÁTER PROGRESSIVO, HÁ 6 ANOS.
 
-2.  **Crie e execute o parser `main.py`:**
+!HPP HAS; DM; HIPOTIREOIDISMO;
+!MED LOSARTANA 50MG 12/12 HORAS; METFORMINA 500MG [LIBERACAO CONTROLADA, 2 COMPRIMIDOS] MANHA NOITE; ALPRAZOLAM 2MG NOITE;
+!HF NEGA;
+!RX @RM_CRANIO[05/2025]: FAZEKAS 3; MTA 3;
+!RX @LAB[05/2025]: B12 100; TSH 25;
 
-    ```python
-    import re
-    import json
+[EXAME FISICO]
+DESORIENTADO EM TEMPO E ESPAÇO;
+PARCIALMENTE COOPERATIVO;
 
-    def parse_med_file(file_path):
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+[HIPOTESE DIAGNOSTICA]
+DEMENCIA NA DOENÇA DE ALZHEIMER
+DEMENCIA VASCULAR?
+HIPOVITAMINOSE
+HIPOTIREOIDISMO
+INTOXICAÇÃO EXOGENA
 
-        data = {}
-        sections = re.split(r'\n(?=\[[A-Z\s]+\])', content)
-
-        for section in sections:
-            section = section.strip()
-            if not section:
-                continue
-
-            header_match = re.match(r'\[([A-Z\s]+)\]', section)
-            if header_match:
-                header = header_match.group(1)
-                section_content = section[len(header)+2:].strip()
-                data[header] = parse_section_content(header, section_content)
-            else:
-                if 'unstructured' not in data:
-                    data['unstructured'] = ''
-                data['unstructured'] += section + '\n'
-
-        return data
-
-    def parse_section_content(header, content):
-        if header == "ANAMNESE":
-            return parse_anamnese(content)
-        return content.split('\n')
-
-    def parse_anamnese(content):
-        anamnese_data = {'queixa_principal': ''}
-        lines = content.split('\n')
-        
-        queixa_principal_lines = []
-        for line in lines:
-            if line.startswith('!'):
-                tag_match = re.match(r'!([A-Z]+) (.*)', line)
-                if tag_match:
-                    tag, value = tag_match.groups()
-                    anamnese_data[tag.lower()] = [v.strip() for v in value.split(';') if v.strip()]
-            else:
-                queixa_principal_lines.append(line)
-        
-        anamnese_data['queixa_principal'] = '\n'.join(queixa_principal_lines).strip()
-        return anamnese_data
-
-    if __name__ == "__main__":
-        parsed_data = parse_med_file('example.med')
-        print(json.dumps(parsed_data, indent=4, ensure_ascii=False))
-    ```
-
-3.  **Resultado Esperado (Saída do Parser):**
-
-    ```json
-    {
-        "ANAMNESE": {
-            "queixa_principal": "PACIENTE COM QUEIXAS DE PREJUIZO DE MEMORIA EPISODICA...",
-            "hpp": [
-                "HAS",
-                "DM",
-                "HIPOTIREOIDISMO"
-            ],
-            "med": [
-                "LOSARTANA 50MG 12/12 HORAS",
-                "METFORMINA 500MG [LIBERACAO CONTROLADA, 2 COMPRIMIDOS] MANHA NOITE",
-                "ALPRAZOLAM 2MG NOITE"
-            ],
-            "hf": [
-                "NEGA"
-            ],
-            "rx": [
-                "@LAB[05/2025]: B12 100",
-                "TSH 25"
-            ]
-        },
-        "EXAME FISICO": [...],
-        "HIPOTESE DIAGNOSTICA": [...],
-        "CONDUTA": [...]
-    }
-    ```
+[CONDUTA]
++AAS 100MG ALMOÇO;
++SINVASTATINA 20MG NOITE;
++GALANTAMINA 4MG;
++MECOBALAMINA 1000MCG;
+-ALPRAZOLAM;
++CLONAZEPAM 2,5MG/ML [5 GOTAS] NOITE >> !DESMAME
+ORIENTO ATIVIDADE FISICA REGULAR
+```

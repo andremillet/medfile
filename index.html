@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de MedFile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #50E3C2;
+            --text-color: #333;
+            --background-color: #F0F2F5;
+            --card-background: #FFFFFF;
+            --border-color: #E0E0E0;
+            --shadow-light: rgba(0, 0, 0, 0.05);
+            --shadow-medium: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px var(--shadow-light);
+            max-width: 900px;
+            width: 100%;
+            margin-top: 50px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease; /* Transição para o modo apresentação */
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 2.2em;
+        }
+
+        .file-input-wrapper {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-upload {
+            border: 2px dashed var(--primary-color);
+            display: inline-block;
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 8px;
+            background-color: #EBF4FF;
+            color: var(--primary-color);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .custom-file-upload:hover {
+            background-color: var(--primary-color);
+            color: var(--card-background);
+            box-shadow: 0 4px 10px var(--shadow-light);
+        }
+
+        .file-name {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .medfile-display {
+            background-color: #F8F8F8;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            min-height: 200px;
+            box-shadow: inset 0 1px 3px var(--shadow-light);
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 20px;
+            position: relative; /* Para posicionar os botões de navegação */
+        }
+
+        .medfile-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .medfile-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .medfile-section h2 {
+            color: var(--primary-color);
+            font-size: 1.6em;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 10px;
+            font-weight: 700;
+        }
+
+        .medfile-section p {
+            margin-bottom: 10px;
+        }
+
+        .medfile-section ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 5px;
+        }
+
+        .medfile-section ul li {
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .medfile-section ul li::before {
+            content: '•';
+            color: var(--primary-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .medfile-tag {
+            font-weight: 600;
+            color: #007BFF;
+        }
+
+        .medfile-tag-value {
+            margin-left: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-buttons button {
+            padding: 12px 25px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .action-buttons button:hover {
+            background-color: #3A7BD5;
+            box-shadow: 0 4px 10px var(--shadow-medium);
+        }
+
+        /* Estilos para o Modo Apresentação */
+        body.presentation-mode {
+            background-color: #000; /* Fundo escuro para apresentação */
+            color: #FFF; /* Texto claro */
+            display: block; /* Remove flex para ocupar toda a tela */
+            padding: 0;
+        }
+
+        body.presentation-mode .container {
+            max-width: 100%;
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            border-radius: 0;
+            box-shadow: none;
+            background-color: #000; /* Fundo escuro */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Alinha ao topo */
+            align-items: center;
+            padding: 50px;
+            box-sizing: border-box;
+        }
+
+        body.presentation-mode h1,
+        body.presentation-mode .file-input-wrapper,
+        body.presentation-mode .action-buttons {
+            display: none; /* Esconde elementos não essenciais na apresentação */
+        }
+
+        body.presentation-mode .medfile-display {
+            background-color: #222; /* Fundo mais escuro para o conteúdo */
+            color: #FFF;
+            border: none;
+            box-shadow: none;
+            padding: 40px;
+            font-size: 1.5em; /* Aumenta o tamanho da fonte */
+            line-height: 1.8;
+            overflow-y: auto; /* Permite scroll se o conteúdo for muito grande */
+            width: 100%;
+            max-width: 800px; /* Limita a largura para melhor leitura */
+            flex-grow: 1; /* Permite que o display ocupe o espaço disponível */
+            min-height: unset; /* Remove min-height */
+        }
+
+        body.presentation-mode .medfile-section {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+            display: none; /* Esconde todas as seções por padrão no modo apresentação */
+        }
+
+        body.presentation-mode .medfile-section.active-slide {
+            display: block; /* Mostra apenas a seção ativa como um bloco normal */
+            width: 100%; /* Ocupa a largura total */
+            height: auto; /* Altura automática para o conteúdo */
+            text-align: left; /* Alinha o texto à esquerda para leitura normal */
+        }
+
+        body.presentation-mode .medfile-section h2 {
+            color: var(--secondary-color); /* Cor de destaque para títulos */
+            font-size: 2.5em;
+            border-left: none;
+            padding-left: 0;
+            margin-bottom: 30px;
+            text-align: center; /* Centraliza o título da seção */
+        }
+
+        body.presentation-mode .medfile-section p,
+        body.presentation-mode .medfile-section ul li {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        body.presentation-mode .medfile-section ul li::before {
+            color: var(--secondary-color);
+        }
+
+        body.presentation-mode .medfile-tag {
+            color: #FFD700; /* Cor de destaque para tags */
+        }
+
+        .presentation-nav-buttons {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1000; /* Garante que os botões fiquem acima de tudo */
+        }
+
+        .presentation-nav-buttons button {
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.2); /* Botões semi-transparentes */
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .presentation-nav-buttons button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .presentation-nav-buttons button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Botão de sair do modo apresentação */
+        #exitPresentationModeButton {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #FF4C4C; /* Cor de destaque para sair */
+            color: white;
+            z-index: 1001; /* Acima de outros elementos */
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            display: none; /* Escondido por padrão */
+            transition: background-color 0.3s ease;
+        }
+
+        #exitPresentationModeButton:hover {
+            background-color: #CC0000;
+        }
+
+        /* Responsividade básica */
+        @media (max-width: 768px) {
+            .container {
+                margin-top: 20px;
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .custom-file-upload,
+            .action-buttons button {
+                padding: 10px 20px;
+            }
+            body.presentation-mode .medfile-display {
+                padding: 20px;
+                font-size: 1.2em;
+            }
+            body.presentation-mode .medfile-section h2 {
+                font-size: 2em;
+            }
+            body.presentation-mode .medfile-section p,
+            body.presentation-mode .medfile-section ul li {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Visualizador de Arquivos MedFile</h1>
+        
+        <div class="file-input-wrapper">
+            <label for="medFile" class="custom-file-upload">
+                Selecionar Arquivo .med
+            </label>
+            <input type="file" id="medFile" accept=".med">
+            <div id="selectedFileName" class="file-name">Nenhum arquivo selecionado.</div>
+        </div>
+
+        <div id="fileContentDisplay" class="medfile-display">Selecione um arquivo .med para visualizar o conteúdo formatado.</div>
+
+        <div class="action-buttons">
+            <button id="downloadHtmlButton" style="display: none;">Download HTML Formatado</button>
+            <button id="enterPresentationModeButton" style="display: none;">Modo Apresentação</button>
+        </div>
+
+        <div class="presentation-nav-buttons" style="display: none;">
+            <button id="prevSlideButton">Anterior</button>
+            <button id="nextSlideButton">Próximo</button>
+        </div>
+    </div>
+
+    <!-- Botão de Sair do Modo Apresentação (fora do container principal) -->
+    <button id="exitPresentationModeButton" style="display: none;">Sair do Modo Apresentação</button>
+
+    <script>
+        let currentSlideIndex = 0;
+        let presentationModeActive = false;
+
+        function parseMedFile(content) {
+            const data = {};
+            const sections = content.split(/\n(?=\[[A-Z\s]+\])/);
+
+            sections.forEach(section => {
+                section = section.trim();
+                if (!section) return;
+
+                const headerMatch = section.match(/\[([A-Z\s]+)\]/);
+                if (headerMatch) {
+                    const header = headerMatch[1];
+                    const sectionContent = section.substring(headerMatch[0].length).trim();
+                    data[header] = parseSectionContent(header, sectionContent);
+                } else {
+                    if (!data.unstructured) {
+                        data.unstructured = [];
+                    }
+                    data.unstructured.push(section);
+                }
+            });
+            return data;
+        }
+
+        function parseSectionContent(header, content) {
+            if (header === "ANAMNESE") {
+                return parseAnamnese(content);
+            }
+            return content.split('\n').filter(line => line.trim() !== '');
+        }
+
+        function parseAnamnese(content) {
+            const anamneseData = { queixa_principal: [] };
+            const lines = content.split('\n');
+            
+            let inQueixaPrincipal = true;
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (!line) {
+                    if (inQueixaPrincipal) {
+                        anamneseData.queixa_principal.push('');
+                    }
+                    return;
+                }
+
+                if (line.startsWith('!')) {
+                    inQueixaPrincipal = false;
+                    if (line.startsWith('!!')) {
+                        const value = line.substring(2).trim();
+                        anamneseData.observacoes = (anamneseData.observacoes || []).concat(value);
+                    } else {
+                        const tagMatch = line.match(/^!([A-Z]+)\s*(.*)/);
+                        if (tagMatch) {
+                            const tag = tagMatch[1];
+                            const value = tagMatch[2].trim();
+                            if (tag === 'RX' || tag === 'MED') {
+                                anamneseData[tag.toLowerCase()] = (anamneseData[tag.toLowerCase()] || []).concat(value.split(';').map(v => v.trim()).filter(v => v !== ''));
+                            } else {
+                                anamneseData[tag.toLowerCase()] = (anamneseData[tag.toLowerCase()] || []).concat(value.split(';').map(v => v.trim()).filter(v => v !== ''));
+                            }                           
+                        }
+                    }
+                } else {
+                    if (inQueixaPrincipal) {
+                        anamneseData.queixa_principal.push(line);
+                    }
+                }
+            });
+            anamneseData.queixa_principal = anamneseData.queixa_principal.join('\n').trim();
+            return anamneseData;
+        }
+
+        function renderMedFile(parsedData) {
+            const displayDiv = document.getElementById('fileContentDisplay');
+            displayDiv.innerHTML = '';
+
+            for (const header in parsedData) {
+                if (header === 'unstructured') continue;
+
+                const sectionDiv = document.createElement('div');
+                sectionDiv.classList.add('medfile-section');
+
+                const sectionTitle = document.createElement('h2');
+                sectionTitle.textContent = header.replace(/_/g, ' ');
+                sectionDiv.appendChild(sectionTitle);
+
+                const content = parsedData[header];
+
+                if (header === "ANAMNESE") {
+                    if (content.queixa_principal) {
+                        const p = document.createElement('p');
+                        p.textContent = content.queixa_principal;
+                        sectionDiv.appendChild(p);
+                    }
+                    for (const tag in content) {
+                        if (tag === 'queixa_principal') continue;
+                        if (content[tag] && content[tag].length > 0) {
+                            const ul = document.createElement('ul');
+                            content[tag].forEach(item => {
+                                const li = document.createElement('li');
+                                const spanTag = document.createElement('span');
+                                spanTag.classList.add('medfile-tag');
+                                spanTag.textContent = (tag === 'observacoes') ? '!!:' : `!${tag.toUpperCase()}:`;
+                                li.appendChild(spanTag);
+                                
+                                const spanValue = document.createElement('span');
+                                spanValue.classList.add('medfile-tag-value');
+                                spanValue.textContent = item;
+                                li.appendChild(spanValue);
+                                ul.appendChild(li);
+                            });
+                            sectionDiv.appendChild(ul);
+                        }
+                    }
+                } else {
+                    if (Array.isArray(content)) {
+                        content.forEach(line => {
+                            const p = document.createElement('p');
+                            p.textContent = line;
+                            sectionDiv.appendChild(p);
+                        });
+                    } else {
+                        const p = document.createElement('p');
+                        p.textContent = content;
+                        sectionDiv.appendChild(p);
+                    }
+                }
+                displayDiv.appendChild(sectionDiv);
+            }
+            document.getElementById('downloadHtmlButton').style.display = 'block';
+            document.getElementById('enterPresentationModeButton').style.display = 'block';
+            currentSlideIndex = 0;
+            showSlide(currentSlideIndex);
+        }
+
+        function showSlide(index) {
+            const slides = document.querySelectorAll('.medfile-section');
+            if (slides.length === 0) return;
+
+            slides.forEach((slide, i) => {
+                if (presentationModeActive) {
+                    slide.classList.toggle('active-slide', i === index);
+                    slide.style.display = (i === index) ? 'block' : 'none';
+                } else {
+                    slide.style.display = 'block';
+                    slide.classList.remove('active-slide');
+                }
+            });
+
+            const prevButton = document.getElementById('prevSlideButton');
+            const nextButton = document.getElementById('nextSlideButton');
+
+            if (presentationModeActive) {
+                prevButton.disabled = (index === 0);
+                nextButton.disabled = (index === slides.length - 1);
+            }
+        }
+
+        document.getElementById('medFile').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const fileNameDisplay = document.getElementById('selectedFileName');
+            const fileContentDisplay = document.getElementById('fileContentDisplay');
+            const downloadButton = document.getElementById('downloadHtmlButton');
+            const enterPresentationButton = document.getElementById('enterPresentationModeButton');
+            const exitPresentationButton = document.getElementById('exitPresentationModeButton');
+            const navButtons = document.querySelector('.presentation-nav-buttons');
+
+            if (file) {
+                fileNameDisplay.textContent = `Arquivo selecionado: ${file.name}`;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const medFileContent = e.target.result;
+                    const parsedData = parseMedFile(medFileContent);
+                    renderMedFile(parsedData);
+                    // Reset presentation mode when a new file is loaded
+                    presentationModeActive = false;
+                    document.body.classList.remove('presentation-mode');
+                    enterPresentationButton.style.display = 'block'; // Garante que o botão de entrar apareça
+                    exitPresentationButton.style.display = 'none';
+                    navButtons.style.display = 'none';
+                };
+                reader.readAsText(file);
+            } else {
+                fileNameDisplay.textContent = 'Nenhum arquivo selecionado.';
+                fileContentDisplay.innerHTML = 'Selecione um arquivo .med para visualizar o conteúdo formatado.';
+                downloadButton.style.display = 'none';
+                enterPresentationButton.style.display = 'none';
+                exitPresentationButton.style.display = 'none';
+                navButtons.style.display = 'none';
+            }
+        });
+
+        document.getElementById('downloadHtmlButton').addEventListener('click', function() {
+            const contentToDownload = document.getElementById('fileContentDisplay').innerHTML;
+            const fullHtml = `
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>MedFile Formatado</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        body {
+                            font-family: 'Inter', sans-serif;
+                            margin: 20px;
+                            padding: 0;
+                            background-color: #F0F2F5;
+                            color: #333;
+                        }
+                        .medfile-display {
+                            background-color: #FFFFFF;
+                            padding: 30px;
+                            border-radius: 12px;
+                            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+                            max-width: 900px;
+                            margin: 20px auto;
+                            border: 1px solid #E0E0E0;
+                            line-height: 1.6;
+                            color: #444;
+                        }
+                        .medfile-section {
+                            margin-bottom: 25px;
+                            padding-bottom: 15px;
+                            border-bottom: 1px dashed #E0E0E0;
+                        }
+                        .medfile-section:last-child {
+                            border-bottom: none;
+                            margin-bottom: 0;
+                            padding-bottom: 0;
+                        }
+                        .medfile-section h2 {
+                            color: #4A90E2;
+                            font-size: 1.6em;
+                            margin-top: 0;
+                            margin-bottom: 15px;
+                            border-left: 4px solid #4A90E2;
+                            padding-left: 10px;
+                            font-weight: 700;
+                        }
+                        .medfile-section p {
+                            margin-bottom: 10px;
+                        }
+                        .medfile-section ul {
+                            list-style: none;
+                            padding-left: 0;
+                            margin-top: 5px;
+                        }
+                        .medfile-section ul li {
+                            margin-bottom: 5px;
+                            padding-left: 20px;
+                            position: relative;
+                        }
+                        .medfile-section ul li::before {
+                            content: '•';
+                            color: #4A90E2;
+                            position: absolute;
+                            left: 0;
+                            font-weight: bold;
+                        }
+                        .medfile-tag {
+                            font-weight: 600;
+                            color: #007BFF;
+                        }
+                        .medfile-tag-value {
+                            margin-left: 5px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="medfile-display">
+                        ${contentToDownload}
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([fullHtml], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'medfile_formatado.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Event listener para o botão de ENTRAR no modo apresentação
+        document.getElementById('enterPresentationModeButton').addEventListener('click', function() {
+            presentationModeActive = true;
+            document.body.classList.add('presentation-mode');
+            document.getElementById('downloadHtmlButton').style.display = 'none';
+            document.getElementById('enterPresentationModeButton').style.display = 'none';
+            document.getElementById('exitPresentationModeButton').style.display = 'block'; // Mostra o botão de sair
+            document.querySelector('.presentation-nav-buttons').style.display = 'flex';
+            
+            showSlide(currentSlideIndex);
+        });
+
+        // Event listener para o botão de SAIR do modo apresentação
+        document.getElementById('exitPresentationModeButton').addEventListener('click', function() {
+            presentationModeActive = false;
+            document.body.classList.remove('presentation-mode');
+            document.getElementById('downloadHtmlButton').style.display = 'block';
+            document.getElementById('enterPresentationModeButton').style.display = 'block';
+            document.getElementById('exitPresentationModeButton').style.display = 'none'; // Esconde o botão de sair
+            document.querySelector('.presentation-nav-buttons').style.display = 'none';
+            
+            showSlide(currentSlideIndex);
+        });
+
+        document.getElementById('prevSlideButton').addEventListener('click', function() {
+            const slides = document.querySelectorAll('.medfile-section');
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                showSlide(currentSlideIndex);
+            }
+        });
+
+        document.getElementById('nextSlideButton').addEventListener('click', function() {
+            const slides = document.querySelectorAll('.medfile-section');
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                showSlide(currentSlideIndex);
+            }
+        });
+    </script>
+</body>
+</html>

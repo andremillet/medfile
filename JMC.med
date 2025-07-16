@@ -1,0 +1,25 @@
+[ANAMNESE]
+Paciente de 45 anos, comparece ao consultório de neurologia, encaminhada pelo PSF devido a resultado de tomografia de crânio. O exame foi soliticado, segundo relato da mesma, devido a crise de cefaléia intensa, em aperto, frontotemporal, vespertina, sem fotofobia ou náusea e vômito, que persistiu por aproximadamente 10 dias antes da realização do exame, necessitando de atendimento em pronto socorro por 3 vezes. Paciente nega cefaléia prévia na mesma intensidade, e que nunca foi uma pessoa com necessidade de fazer uso de analgésicos frequentemente, porém que vez ou outra (frequência maior que mensalmente), apresenta dor frontotemporal discreta, que em sua maioria das vezes resolvia-se espontaneamente.
+Chega a consulta com Tomografia de Crânio, de baixa qualidade, apresentando diagnóstico de Neurocisticercose, estágio 4, devido a algumas lesões calcificadas em região subcortical bilateralmente (total de 3).
+Paciente nega episódios de fraqueza muscular, alterações visuais ou de consciência, episódio de abalos ou (pré) síncopes. Nega histórico de crises convulsivas.
+
+!HPP Nega HAS; DM2 ou outras patologias prévias;
+!MED Nega;
+!HF Mãe Hipertensa;
+!RX @TC_CRANIO: calcificações esparsas subcorticais - laudo como neurocisticercose estágio 4. Não observado edema, porém também não foi laudado;
+
+[EXAME FISICO]
+Reflexo / Pares cranianos / Sensibilidade e Força muscular Testados e sem alterações;
+Sem alterações em marcha;
+Aparelho cardiovascular: BNF, RCR 2T;
+Acianótica, anictérica, normocorada e hidratada;
+
+[HIPOTESE DIAGNOSTICA]
+Neurocisticercose Estágio 4;
+Cefaleia Tensional;
+
+[CONDUTA]
++ALBENDAZOL 400MG [1CP] 12/12HS POR 3 DIAS;
++PREDNISONA 20MG [1CP] 12/12HS POR 7 DIAS;
+Solicito RNM de cranio com contraste;
+Aguardar retorno;

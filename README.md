@@ -1,16 +1,16 @@
-# MedFile Parser
+# MedFile Parser and HTML Viewer
 
 Este repositório contém o parser de referência para o **MedFile**, um formato de texto simplificado e legível por humanos para criar e compartilhar anotações médicas.
 
-O objetivo é facilitar a rápida compreensão da avaliação clínica por múltiplos profissionais e permitir a integração com prontuários eletrônicos de forma menos verbosa e mais estruturada.
+Além do parser, este projeto agora inclui um **Visualizador HTML** interativo que permite:
 
-Para a especificação completa do formato, exemplos detalhados e o roadmap de desenvolvimento, por favor, consulte o arquivo [medfile.md](medfile.md).
+*   Visualizar arquivos `.med` formatados diretamente no navegador.
+*   Baixar o conteúdo formatado como um arquivo HTML.
+*   Utilizar um "Modo Apresentação" para exibir o documento em tela cheia, ideal para reuniões e compartilhamento.
 
-## Status Atual
+Para a especificação completa do formato MedFile, exemplos detalhados, o roadmap de desenvolvimento do parser e instruções completas sobre o visualizador HTML, por favor, consulte o arquivo [medfile.md](medfile.md).
 
-O parser está na **Fase 1** de desenvolvimento, sendo capaz de processar as seções principais de um arquivo `.med` e extrair as informações da seção `[ANAMNESE]`.
-
-## Como Começar
+## Como Começar (Visualizador HTML)
 
 1.  **Clone o repositório:**
     ```bash
@@ -18,60 +18,24 @@ O parser está na **Fase 1** de desenvolvimento, sendo capaz de processar as se�
     cd medfile
     ```
 
+2.  **Abra o visualizador:**
+
+    Simplesmente abra o arquivo `index.html` no seu navegador web preferido.
+
+3.  **Selecione um arquivo .med:**
+
+    Clique em "Selecionar Arquivo .med" e escolha um dos arquivos de exemplo (ex: `example.med` ou `JMC.med`) ou qualquer outro arquivo `.med` que você tenha.
+
+## Como Começar (Parser Python)
+
+Para usar o parser Python (Fase 1 concluída):
+
+1.  **Certifique-se de ter Python 3 instalado.**
 2.  **Execute o parser:**
-
-    O script `main.py` irá processar o arquivo `example.med` e imprimir a saída em formato JSON.
-
     ```bash
     python3 main.py
     ```
-
-3.  **Saída Esperada:**
-
-    ```json
-    {
-        "ANAMNESE": {
-            "queixa_principal": "PACIENTE COM QUEIXAS DE PREJUIZO DE MEMORIA EPISODICA, COM PREDOMINIO DE FATOS RECENTES E MENÇÃO DE PREJUIZO SIGNIFICATIVO EM FUNÇÕES EXECUTIVAS, COMPROMETENDO ATIVIDADES BASICAS E INSTRUMENTAIS, EM CARÁTER PROGRESSIVO, HÁ 6 ANOS.",
-            "hpp": [
-                "HAS",
-                "DM",
-                "HIPOTIREOIDISMO"
-            ],
-            "med": [
-                "LOSARTANA 50MG 12/12 HORAS",
-                "METFORMINA 500MG [LIBERACAO CONTROLADA, 2 COMPRIMIDOS] MANHA NOITE",
-                "ALPRAZOLAM 2MG NOITE"
-            ],
-            "hf": [
-                "NEGA"
-            ],
-            "rx": [
-                "@LAB[05/2025]: B12 100",
-                "TSH 25"
-            ]
-        },
-        "EXAME FISICO": [
-            "DESORIENTADO EM TEMPO E ESPAÇO;",
-            "PARCIALMENTE COOPERATIVO;"
-        ],
-        "HIPOTESE DIAGNOSTICA": [
-            "DEMENCIA NA DOENÇA DE ALZHEIMER",
-            "DEMENCIA VASCULAR?",
-            "HIPOVITAMINOSE",
-            "HIPOTIREOIDISMO",
-            "INTOXICAÇÃO EXOGENA"
-        ],
-        "CONDUTA": [
-            "+AAS 100MG ALMOÇO;",
-            "+SINVASTATINA 20MG NOITE;",
-            "+GALANTAMINA 4MG;",
-            "+MECOBALAMINA 1000MCG;",
-            "-ALPRAZOLAM;",
-            "+CLONAZEPAM 2,5MG/ML [5 GOTAS] NOITE >> !DESMAME",
-            "ORIENTO ATIVIDADE FISICA REGULAR"
-        ]
-    }
-    ```
+    O script irá processar o `example.med` e imprimir a saída em formato JSON no console.
 
 ## Como Contribuir
 
