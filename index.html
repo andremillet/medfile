@@ -334,6 +334,88 @@
                 font-size: 1em;
             }
         }
+
+        /* Estilos do Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px var(--shadow-medium);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .modal-content p {
+            margin-bottom: 25px;
+            color: #666;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .modal-buttons button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-buttons .primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .modal-buttons .primary:hover {
+            background-color: #3A7BD5;
+            box-shadow: 0 4px 10px var(--shadow-light);
+        }
+
+        .modal-buttons .secondary {
+            background-color: #E0E0E0;
+            color: var(--text-color);
+        }
+        .modal-buttons .secondary:hover {
+            background-color: #C7C7C7;
+        }
     </style>
 </head>
 <body>
@@ -363,6 +445,18 @@
 
     <!-- Botão de Sair do Modo Apresentação (fora do container principal) -->
     <button id="exitPresentationModeButton" style="display: none;">Sair do Modo Apresentação</button>
+
+    <!-- Modal para Escolha do Modo de Apresentação -->
+    <div id="presentationModeModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Modo de Apresentação</h2>
+            <p>Escolha como deseja visualizar a apresentação.</p>
+            <div class="modal-buttons">
+                <button id="startNormalPresentation" class="secondary">Modo Normal</button>
+                <button id="startCollabPresentation" class="primary">Modo Colaborativo</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         let currentSlideIndex = 0;
@@ -483,17 +577,20 @@
                         }
                     }
                 } else {
+                    const contentWrapper = document.createElement('div');
+                    contentWrapper.classList.add('original-content');
                     if (Array.isArray(content)) {
                         content.forEach(line => {
                             const p = document.createElement('p');
                             p.textContent = line;
-                            sectionDiv.appendChild(p);
+                            contentWrapper.appendChild(p);
                         });
                     } else {
                         const p = document.createElement('p');
                         p.textContent = content;
-                        sectionDiv.appendChild(p);
+                        contentWrapper.appendChild(p);
                     }
+                    sectionDiv.appendChild(contentWrapper);
                 }
                 displayDiv.appendChild(sectionDiv);
             }
@@ -526,6 +623,84 @@
             }
         }
 
+        function startPresentation(isCollaborative = false) {
+            presentationModeActive = true;
+            document.body.classList.add('presentation-mode');
+            document.getElementById('downloadHtmlButton').style.display = 'none';
+            document.getElementById('enterPresentationModeButton').style.display = 'none';
+            document.getElementById('exitPresentationModeButton').style.display = 'block';
+            document.querySelector('.presentation-nav-buttons').style.display = 'flex';
+            document.getElementById('presentationModeModal').classList.remove('visible');
+
+            if (isCollaborative) {
+                setupCollaborativeMode();
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        function setupCollaborativeMode() {
+            const sections = document.querySelectorAll('.medfile-section');
+            sections.forEach(section => {
+                const title = section.querySelector('h2');
+                if (title && title.textContent.trim().toUpperCase() === 'CONDUTA') {
+                    // Esconde o conteúdo original
+                    const originalContent = section.querySelector('.original-content');
+                    if (originalContent) {
+                        originalContent.style.display = 'none';
+                    }
+
+                    // Adiciona a interface colaborativa se ainda não existir
+                    if (!section.querySelector('.collab-interface')) {
+                        const collabInterface = document.createElement('div');
+                        collabInterface.className = 'collab-interface';
+                        collabInterface.style.cssText = 'display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px;';
+
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.placeholder = 'Adicionar novo item à conduta...';
+                        input.style.cssText = 'width: 80%; padding: 10px; font-size: 0.8em; border-radius: 5px; border: 1px solid #555; background-color: #333; color: #FFF;';
+
+                        const button = document.createElement('button');
+                        button.textContent = 'Adicionar Item';
+                        button.style.cssText = 'padding: 10px 20px; font-size: 0.8em; border-radius: 5px; border: none; background-color: var(--primary-color); color: white; cursor: pointer;';
+
+                        const list = document.createElement('ul');
+                        list.className = 'collab-list';
+                        list.style.cssText = 'list-style: none; padding: 0; width: 80%; text-align: left;';
+
+                        button.onclick = () => {
+                            if (input.value.trim() !== '') {
+                                const newItem = document.createElement('li');
+                                newItem.textContent = input.value.trim();
+                                newItem.style.cssText = 'margin-bottom: 10px; padding-left: 20px; position: relative;';
+                                // Adiciona o bullet point customizado
+                                const bullet = document.createElement('span');
+                                bullet.textContent = '•';
+                                bullet.style.cssText = 'color: var(--secondary-color); position: absolute; left: 0; font-weight: bold;';
+                                newItem.prepend(bullet);
+
+                                list.appendChild(newItem);
+                                input.value = '';
+                                input.focus();
+                            }
+                        };
+                        
+                        input.onkeydown = (e) => {
+                            if (e.key === 'Enter') {
+                                button.click();
+                            }
+                        };
+
+                        collabInterface.appendChild(input);
+                        collabInterface.appendChild(button);
+                        collabInterface.appendChild(list);
+                        section.appendChild(collabInterface);
+                    }
+                }
+            });
+        }
+
         document.getElementById('medFile').addEventListener('change', function(event) {
             const file = event.target.files[0];
             const fileNameDisplay = document.getElementById('selectedFileName');
@@ -542,10 +717,9 @@
                     const medFileContent = e.target.result;
                     const parsedData = parseMedFile(medFileContent);
                     renderMedFile(parsedData);
-                    // Reset presentation mode when a new file is loaded
                     presentationModeActive = false;
                     document.body.classList.remove('presentation-mode');
-                    enterPresentationButton.style.display = 'block'; // Garante que o botão de entrar apareça
+                    enterPresentationButton.style.display = 'block';
                     exitPresentationButton.style.display = 'none';
                     navButtons.style.display = 'none';
                 };
@@ -656,16 +830,20 @@
             URL.revokeObjectURL(url);
         });
 
-        // Event listener para o botão de ENTRAR no modo apresentação
+        // Event listener para o botão de ENTRAR no modo apresentação (agora abre o modal)
         document.getElementById('enterPresentationModeButton').addEventListener('click', function() {
-            presentationModeActive = true;
-            document.body.classList.add('presentation-mode');
-            document.getElementById('downloadHtmlButton').style.display = 'none';
-            document.getElementById('enterPresentationModeButton').style.display = 'none';
-            document.getElementById('exitPresentationModeButton').style.display = 'block'; // Mostra o botão de sair
-            document.querySelector('.presentation-nav-buttons').style.display = 'flex';
-            
-            showSlide(currentSlideIndex);
+            document.getElementById('presentationModeModal').classList.add('visible');
+        });
+
+        // Event listeners para os botões do modal
+        document.getElementById('startNormalPresentation').addEventListener('click', () => startPresentation(false));
+        document.getElementById('startCollabPresentation').addEventListener('click', () => startPresentation(true));
+        
+        // Fecha o modal se clicar fora do conteúdo
+        document.getElementById('presentationModeModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('visible');
+            }
         });
 
         // Event listener para o botão de SAIR do modo apresentação
@@ -674,7 +852,7 @@
             document.body.classList.remove('presentation-mode');
             document.getElementById('downloadHtmlButton').style.display = 'block';
             document.getElementById('enterPresentationModeButton').style.display = 'block';
-            document.getElementById('exitPresentationModeButton').style.display = 'none'; // Esconde o botão de sair
+            document.getElementById('exitPresentationModeButton').style.display = 'none';
             document.querySelector('.presentation-nav-buttons').style.display = 'none';
             
             showSlide(currentSlideIndex);
