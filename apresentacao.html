@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medfile: O Contrato Inteligente da Documentação Médica</title>
+    <style>
+        :root {
+            --primary-color: #005f7f;
+            --secondary-color: #008cba;
+            --accent-color: #ff9800;
+            --success-color: #4caf50;
+            --bg-light: #f4f7f9;
+            --text-dark: #333;
+            --code-bg: #2d2d2d;
+            --code-text: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        /* Main Grid Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 992px) {
+            .main-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-top: 4px solid var(--secondary-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--bg-light);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* Section 1: Visão Geral */
+        .problem-box, .solution-box {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .problem-box { background-color: #ffebee; border-left: 5px solid #e53935; }
+        .solution-box { background-color: #e8f5e9; border-left: 5px solid var(--success-color); }
+        
+        .feature-list li { margin-bottom: 8px; }
+        .feature-list strong { color: var(--primary-color); }
+
+        /* Section 2: Estrutura .med (Visual File) */
+        .med-file-visual {
+            background: #fff;
+            border: 3px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .med-file-visual::before {
+            content: "Arquivo .med";
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 2px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .med-block {
+            border: 2px dashed #aaa;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+        
+        .med-block.highlighted {
+            border-color: var(--accent-color);
+            background-color: #fff3e0;
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(255, 152, 0, 0.3);
+        }
+
+        .med-block-title { color: var(--primary-color); font-weight: bold; }
+        .med-block-desc { font-size: 0.85em; color: #666; }
+
+        /* Section 3: Automação */
+        .automation-card {
+            border-top-color: var(--accent-color);
+        }
+        
+        .command-flow {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .command-flow:hover {
+            transform: translateX(5px);
+            border-color: var(--accent-color);
+        }
+
+        .code-snippet {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            flex: 2;
+            font-size: 0.9em;
+        }
+
+        .flow-arrow {
+            font-size: 2em;
+            color: var(--accent-color);
+            padding: 0 15px;
+            flex: 0;
+        }
+
+        .flow-result {
+            flex: 1;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .flow-result span {
+            display: block;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        /* Stakeholders Section */
+        .stakeholders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .stakeholder-card {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .stakeholder-icon { font-size: 3em; margin-bottom: 15px; }
+        .stakeholder-card h3 { color: var(--primary-color); margin-bottom: 10px; }
+
+        /* Footer CTA */
+        .cta-footer {
+            margin-top: 50px;
+            padding: 30px;
+            text-align: center;
+            background: #e0f7fa;
+            border-radius: 15px;
+            border: 2px solid var(--secondary-color);
+        }
+        .cta-footer h2 { border: none;}
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>Medfile: O Contrato Inteligente da Documentação Médica</h1>
+        <p>Transformando registros clínicos em smart contracts digitais (.med) para automação e imutabilidade.</p>
+    </div>
+</header>
+
+<main class="container">
+    <div class="main-grid">
+        <div class="card">
+            <h2>Visão Geral e Problema</h2>
+            <div class="problem-box">
+                <strong>❌ O Problema (Legado Rígido)</strong>
+                <p>Documentação atual é propensa a erros, difícil de auditar e incapaz de automatizar processos devido a sistemas legados desconectados.</p>
+            </div>
+            <div class="solution-box">
+                <strong>✅ A Solução Medfile (.med)</strong>
+                <p>Transforma registros em smart contracts baseados em texto simples. Permite transações imutáveis e condições executáveis.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Estrutura do Formato .med</h2>
+            <p style="margin-bottom: 25px;">Contrato Inteligente estruturado em Plain Text.</p>
+            
+            <div class="med-file-visual">
+                <div class="med-block">
+                    <span class="med-block-title">[PATIENT] & [DOCTOR]</span><br>
+                    <span class="med-block-desc">Metadados e Privacidade (CPF Hasheado).</span>
+                </div>
+                <div class="med-block">
+                    <span class="med-block-title">[TRANSACTION]</span><br>
+                    <span class="med-block-desc">Segurança e Auditoria (ID, Timestamp, Hash, Assinatura).</span>
+                </div>
+                 <div class="med-block">
+                    <span class="med-block-title">[CONTRACT_CONDITIONS]</span><br>
+                    <span class="med-block-desc">Termos Executáveis (Validação Prévia, ex: Consentimento).</span>
+                </div>
+                <div class="med-block" id="target-content">
+                    <span class="med-block-title">[CONTENT]</span><br>
+                    <span class="med-block-desc">Corpo do Registro (Anamnese, Exame Físico).</span>
+                </div>
+                <div class="med-block" id="target-conduta" style="border-color: var(--accent-color); background: #fff8e1;">
+                    <span class="med-block-title">[CONDUTA]</span><br>
+                    <span class="med-block-desc">O Coração da Automação: Comandos Padronizados.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card automation-card">
+            <h2>O Coração da Automação</h2>
+            <p>Comandos na seção <code>[CONDUTA]</code> são parseáveis para JSON, permitindo automação crítica. Passe o mouse para ver a conexão.</p>
+
+            <div class="command-flow trigger-conduta">
+                <div class="code-snippet">!PRESCREVO [MED] [DOSAGEM]</div>
+                <div class="flow-arrow">➜</div>
+                <div class="flow-result">
+                    <span>💊</span>
+                    Pedidos Automáticos Farmácia
+                </div>
+            </div>
+
+            <div class="command-flow trigger-conduta">
+                <div class="code-snippet">!SOLICITO [TIPO_EXAME]</div>
+                <div class="flow-arrow">➜</div>
+                <div class="flow-result">
+                    <span>📅</span>
+                    Rastreamento de Exames/Agenda
+                </div>
+            </div>
+
+            <div class="command-flow trigger-conduta">
+                <div class="code-snippet">!AJUSTO / !SUSPENDO [MED]</div>
+                <div class="flow-arrow">➜</div>
+                <div class="flow-result">
+                    <span>🔔</span>
+                    Notificações e Trocas de Receita
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 style="text-align: center; margin-top: 50px; border:none;">Benefícios Chave para Stakeholders</h2>
+    <div class="stakeholders-grid">
+        <div class="stakeholder-card">
+            <div class="stakeholder-icon">👨‍⚕️</div>
+            <h3>Médicos</h3>
+            <p>Reduz tempo de documentação e acelera revisões via parsing.</p>
+        </div>
+        <div class="stakeholder-card">
+            <div class="stakeholder-icon">🤒</div>
+            <h3>Pacientes</h3>
+            <p>Histórico legível, lembretes e pedidos automáticos de medicação.</p>
+        </div>
+        <div class="stakeholder-card">
+            <div class="stakeholder-icon">🖥️</div>
+            <h3>Sistemas</h3>
+            <p>Integração fácil (DBs ou Blockchains opcionais) e alta escalabilidade.</p>
+        </div>
+        <div class="stakeholder-card">
+            <div class="stakeholder-icon">📋</div>
+            <h3>Convênios</h3>
+            <p>Rastreabilidade e auditoria simplificada de condutas e aprovações.</p>
+        </div>
+    </div>
+
+    <div class="cta-footer">
+        <h2>🚀 Próximos Passos: Projeto Open-Source</h2>
+        <p>Buscamos contribuições para refinar a sintaxe e desenvolver scripts de parsing robustos para integrar o formato .med com sistemas de Prontuários Eletrônicos (EHR) e plataformas de saúde.</p>
+    </div>
+
+</main>
+
+<script>
+    // Script simples para adicionar interatividade visual
+    // Quando o usuário passa o mouse sobre um comando de automação,
+    // a caixa correspondente na estrutura do arquivo .med é destacada.
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const triggers = document.querySelectorAll('.trigger-conduta');
+        const target = document.getElementById('target-conduta');
+
+        triggers.forEach(trigger => {
+            trigger.addEventListener('mouseenter', () => {
+                target.classList.add('highlighted');
+            });
+            trigger.addEventListener('mouseleave', () => {
+                target.classList.remove('highlighted');
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
